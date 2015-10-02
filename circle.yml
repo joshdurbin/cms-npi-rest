@@ -19,4 +19,4 @@ deployment:
   staging:
     branch: master
     heroku:
-      appname: cms-icd-rest
+      appname: cms-npi-rest
