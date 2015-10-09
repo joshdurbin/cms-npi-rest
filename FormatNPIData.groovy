@@ -20,6 +20,7 @@ import org.apache.commons.lang3.mutable.MutableInt
 def random = new java.util.Random()
 def dateFormatter = DateTimeFormatter.ofPattern('MM/dd/yyyy')
 def resultDivisor = 2
+def printStatusPerNumberOfRecords = 500000
 
 class IsoDateSerializer extends StdSerializer<LocalDate> {
 
@@ -192,7 +193,7 @@ new File('npidata_20050523-20150913.csv').eachLine { line, lineNumber ->
 
 	def parsedValues = parser.parseLine(line)
 
-	if (lineNumber % 100000 == 0) {
+	if (lineNumber % printStatusPerNumberOfRecords == 0) {
 		println "Pre-processing line number $lineNumber..."
 	}
 
@@ -226,13 +227,13 @@ new File('output.json').withWriter { writer ->
 
 	new File('npidata_20050523-20150913.csv').eachLine { line, lineNumber ->
 
-		if (lineNumber % 100000 == 0) {
+		if (lineNumber % printStatusPerNumberOfRecords == 0) {
 			println "Processing line number $lineNumber..."
 		}
 
 		def parsedValues = parser.parseLine(line)
 
-		if (parsedValues[1] == '1') {
+		if (parsedValues[1] == '1' && parsedValues[33] == 'US') {
 
 			def individual = new Individual(
 			type: 'individual',
@@ -257,14 +258,11 @@ new File('output.json').withWriter { writer ->
 			mailingAddress: generateAddress(parsedValues, true),
 			practiceAddress: generateAddress(parsedValues, false))
 
-			if (individual.practiceAddress.countryCode == 'US') {
-
-				if (((numberOfUSBasedIndividualsPerState.get(individual.practiceAddress.state) / totalNumberOfUSBasedIndividuals) / resultDivisor) > random.nextDouble()) {
-					writer.writeLine(jsonMapper.writeValueAsString(individual))
-				}
+			if (((numberOfUSBasedIndividualsPerState.get(individual.practiceAddress.state) / totalNumberOfUSBasedIndividuals) / resultDivisor) > random.nextDouble()) {
+				writer.writeLine(jsonMapper.writeValueAsString(individual))
 			}
 
-		} else if (parsedValues[1] == '2') {
+		} else if (parsedValues[1] == '2' && parsedValues[33] == 'US') {
 
 			def authorizedOfficial = new AuthorizedOfficial(
 			firstName: parsedValues[43],
@@ -294,11 +292,8 @@ new File('output.json').withWriter { writer ->
 			mailingAddress: generateAddress(parsedValues, true),
 			practiceAddress: generateAddress(parsedValues, false))
 
-			if (organization.practiceAddress.countryCode == 'US') {
-
-				if (((numberOfUSBasedOrganizationRecordsPerState.get(organization.practiceAddress.state) / totalNumberOfUSBasedOrganizations) / resultDivisor) > random.nextDouble()) {
-					writer.writeLine(jsonMapper.writeValueAsString(organization))
-				}
+			if (((numberOfUSBasedOrganizationRecordsPerState.get(organization.practiceAddress.state) / totalNumberOfUSBasedOrganizations) / resultDivisor) > random.nextDouble()) {
+				writer.writeLine(jsonMapper.writeValueAsString(organization))
 			}
 		}
 	}
