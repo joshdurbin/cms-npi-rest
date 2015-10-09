@@ -11,12 +11,12 @@ Data load procedures:
 4. Place the script in the same directory as the csv file. Modify the script on line 24 and execute. I intentionally didn't want the ENTIRE dataset for this project, so I calculate the weights for each state within the US and use those values to randomly pick individuals and organizations for output. The script is straight forward -- modification to output everything is simple enough. The script will produce a JSON file, `output.json`.
 5. Import script output into Mongo
 
-  * `mongoimport -v --host=127.0.0.1 --port=27017 --db cms-npi-rest --collection recorrds output.json`
+  * `mongoimport -v --host=127.0.0.1 --port=27017 --db cms-npi-rest --collection npi_records output.json`
 
 7. Establish indexes on collection
 
   ```javascript
-  db.recorrds.createIndex(
+  db.npi_records.createIndex(
     {
       npiCode: 1,
       type: 1,
@@ -30,7 +30,7 @@ Data load procedures:
 8. Establish text indexes on collection
 
   ```javascript
-  db.recorrds.createIndex(
+  db.npi_records.createIndex(
     {
       firstName: "text",
       middleName: "text",
