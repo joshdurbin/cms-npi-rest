@@ -1,6 +1,7 @@
 @Grapes([
 	@Grab(group='com.univocity', module='univocity-parsers', version='1.5.6'),
-  @Grab(group='com.fasterxml.jackson.core', module='jackson-databind', version='2.6.2')
+  @Grab(group='com.fasterxml.jackson.core', module='jackson-databind', version='2.6.2'),
+	@Grab(group='org.apache.commons', module='commons-lang3', version='3.4')
 ])
 
 import com.univocity.parsers.csv.*
@@ -14,8 +15,11 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 import java.time.format.DateTimeFormatter
 import java.time.LocalDate
+import org.apache.commons.lang3.mutable.MutableInt
 
+def random = new java.util.Random()
 def dateFormatter = DateTimeFormatter.ofPattern('MM/dd/yyyy')
+def resultDivisor = 2
 
 class IsoDateSerializer extends StdSerializer<LocalDate> {
 
@@ -37,10 +41,11 @@ jsonMapper.setSerializationInclusion(Include.NON_NULL)
 jsonMapper.registerModule(isoDateConversionModule)
 
 class Record {
+	def type
 	def npiCode
 	def replacementCode
-	def taxonomies = []
-	def otherProviderInformation = []
+	def taxonomies
+	def otherProviderInformation
 	def mailingAddress
 	def practiceAddress
 	def providerEnumerationDate
@@ -50,16 +55,13 @@ class Record {
 	def npiReactivationDate
 }
 
-class Person extends Record {
+class Individual extends Record {
 	def firstName
 	def middleName
 	def lastName
 	def namePrefix
 	def nameSuffix
 	def credentialText
-}
-
-class Individual extends Person {
 	def employerIdentificationNumber
 	def gender
 	def soleProprietor
@@ -72,7 +74,13 @@ class Organization extends Record {
 	def subpart
 }
 
-class AuthorizedOfficial extends Person {
+class AuthorizedOfficial {
+	def firstName
+	def middleName
+	def lastName
+	def namePrefix
+	def nameSuffix
+	def credentialText
 	def titleOrPosition
 	def telephoneNumber
 }
@@ -177,74 +185,120 @@ settings.getFormat().setLineSeparator('\n')
 
 def parser = new CsvParser(settings)
 
-new File('individuals.json').withWriter { individualsJSONWriter ->
-	new File('organizations.json').withWriter { organizationsJSONWriter ->
+def numberOfUSBasedIndividualsPerState = [:]
+def numberOfUSBasedOrganizationRecordsPerState = [:]
 
-		new File('npidata_20050523-20150913.csv').eachLine { line, lineNumber ->
+new File('npidata_20050523-20150913.csv').eachLine { line, lineNumber ->
 
-		  if (lineNumber % 100000 == 0) {
-				println "Processing line number $lineNumber..."
+	def parsedValues = parser.parseLine(line)
+
+	if (lineNumber % 100000 == 0) {
+		println "Pre-processing line number $lineNumber..."
+	}
+
+	if (parsedValues[1] == '1' && parsedValues[33] == 'US') {
+
+		if (numberOfUSBasedIndividualsPerState.containsKey(parsedValues[31])) {
+			numberOfUSBasedIndividualsPerState.get(parsedValues[31]).increment()
+		} else {
+			numberOfUSBasedIndividualsPerState.put(parsedValues[31], new MutableInt(1))
+		}
+
+	} else if (parsedValues[1] == '2' && parsedValues[33] == 'US') {
+
+		if (numberOfUSBasedOrganizationRecordsPerState.containsKey(parsedValues[31])) {
+			numberOfUSBasedOrganizationRecordsPerState.get(parsedValues[31]).increment()
+		} else {
+			numberOfUSBasedOrganizationRecordsPerState.put(parsedValues[31], new MutableInt(1))
+		}
+	}
+}
+
+def totalNumberOfUSBasedIndividuals = numberOfUSBasedIndividualsPerState.values().collect { mutableInt ->
+	mutableInt.value
+}.sum()
+
+def totalNumberOfUSBasedOrganizations = numberOfUSBasedOrganizationRecordsPerState.values().collect { mutableInt ->
+	mutableInt.value
+}.sum()
+
+new File('output.json').withWriter { writer ->
+
+	new File('npidata_20050523-20150913.csv').eachLine { line, lineNumber ->
+
+	  if (lineNumber % 100000 == 0) {
+			println "Processing line number $lineNumber..."
+		}
+
+		def parsedValues = parser.parseLine(line)
+
+		if (parsedValues[1] == '1') {
+
+			def individual = new Individual(
+			  type: 'individual',
+				firstName: parsedValues[6],
+				middleName: parsedValues[7],
+				lastName: parsedValues[5],
+				namePrefix: parsedValues[8],
+				nameSuffix: parsedValues[9],
+				credentialText: parsedValues[10],
+				employerIdentificationNumber: parsedValues[3],
+				gender: parsedValues[41],
+				npiCode:  parsedValues[0],
+				replacementCode: parsedValues[2],
+				providerEnumerationDate: parsedValues[36] ? LocalDate.parse(parsedValues[36], dateFormatter) : null,
+				lastUpdate: parsedValues[37] ? LocalDate.parse(parsedValues[37], dateFormatter) : null,
+				npiDeactivationReasonCode: parsedValues[38],
+				npiDeactivationDate: parsedValues[39] ? LocalDate.parse(parsedValues[39], dateFormatter) : null,
+				npiReactivationDate: parsedValues[40] ? LocalDate.parse(parsedValues[40], dateFormatter) : null,
+				soleProprietor: parsedValues[307]?.toBoolean(),
+				taxonomies: generateTaxonomies(parsedValues),
+				otherProviderInformation: generateOtherProviderInformation(parsedValues),
+				mailingAddress: generateAddress(parsedValues, true),
+				practiceAddress: generateAddress(parsedValues, false))
+
+			if (individual.practiceAddress.countryCode == 'US') {
+
+        if (((numberOfUSBasedIndividualsPerState.get(individual.practiceAddress.state) / totalNumberOfUSBasedIndividuals) / resultDivisor) > random.nextDouble()) {
+						writer.writeLine(jsonMapper.writeValueAsString(individual))
+				}
 			}
 
-			def parsedValues = parser.parseLine(line)
+		} else if (parsedValues[1] == '2') {
 
-			if (parsedValues[1] == '1') {
+			def authorizedOfficial = new AuthorizedOfficial(
+				firstName: parsedValues[43],
+				middleName: parsedValues[44],
+				lastName: parsedValues[42],
+				namePrefix: parsedValues[311],
+				nameSuffix: parsedValues[312],
+				credentialText: parsedValues[313],
+				titleOrPosition: parsedValues[45],
+				telephoneNumber: parsedValues[46])
 
-				individualsJSONWriter.writeLine(
-					jsonMapper.writeValueAsString(
-						new Individual(
-							firstName: parsedValues[6],
-							middleName: parsedValues[7],
-							lastName: parsedValues[5],
-							namePrefix: parsedValues[8],
-							nameSuffix: parsedValues[9],
-							credentialText: parsedValues[10],
-							employerIdentificationNumber: parsedValues[3],
-							gender: parsedValues[41],
-							npiCode:  parsedValues[0],
-							replacementCode: parsedValues[2],
-							providerEnumerationDate: parsedValues[36] ? LocalDate.parse(parsedValues[36], dateFormatter) : null,
-							lastUpdate: parsedValues[37] ? LocalDate.parse(parsedValues[37], dateFormatter) : null,
-							npiDeactivationReasonCode: parsedValues[38],
-							npiDeactivationDate: parsedValues[39] ? LocalDate.parse(parsedValues[39], dateFormatter) : null,
-							npiReactivationDate: parsedValues[40] ? LocalDate.parse(parsedValues[40], dateFormatter) : null,
-							soleProprietor: parsedValues[307]?.toBoolean(),
-							taxonomies: generateTaxonomies(parsedValues),
-							otherProviderInformation: generateOtherProviderInformation(parsedValues),
-							mailingAddress: generateAddress(parsedValues, true),
-							practiceAddress: generateAddress(parsedValues, false))))
+		  def organization = new Organization(
+			  type: 'organization',
+				name: parsedValues[4],
+				otherName: parsedValues[],
+				npiCode:  parsedValues[0],
+				replacementCode: parsedValues[2],
+				authorizedOfficial: authorizedOfficial,
+				providerEnumerationDate: parsedValues[36] ? LocalDate.parse(parsedValues[36], dateFormatter) : null,
+				lastUpdate: parsedValues[37] ? LocalDate.parse(parsedValues[37], dateFormatter) : null,
+				npiDeactivationReasonCode: parsedValues[38],
+				npiDeactivationDate: parsedValues[39] ? LocalDate.parse(parsedValues[39], dateFormatter) : null,
+				npiReactivationDate: parsedValues[40] ? LocalDate.parse(parsedValues[40], dateFormatter) : null,
+				subpart: parsedValues[308]?.toBoolean(),
+				taxonomies: generateTaxonomies(parsedValues),
+				otherProviderInformation: generateOtherProviderInformation(parsedValues),
+				mailingAddress: generateAddress(parsedValues, true),
+				practiceAddress: generateAddress(parsedValues, false))
 
-			} else if (parsedValues[1] == '2') {
+			if (organization.practiceAddress.countryCode == 'US') {
 
-				def authorizedOfficial = new AuthorizedOfficial(
-					firstName: parsedValues[43],
-					middleName: parsedValues[44],
-					lastName: parsedValues[42],
-					namePrefix: parsedValues[311],
-					nameSuffix: parsedValues[312],
-					credentialText: parsedValues[313],
-					titleOrPosition: parsedValues[45],
-					telephoneNumber: parsedValues[46])
-
-				organizationsJSONWriter.writeLine(
-					jsonMapper.writeValueAsString(
-
-						new Organization(
-							name: parsedValues[4],
-							otherName: parsedValues[],
-							npiCode:  parsedValues[0],
-							replacementCode: parsedValues[2],
-							authorizedOfficial: authorizedOfficial,
-							providerEnumerationDate: parsedValues[36] ? LocalDate.parse(parsedValues[36], dateFormatter) : null,
-							lastUpdate: parsedValues[37] ? LocalDate.parse(parsedValues[37], dateFormatter) : null,
-							npiDeactivationReasonCode: parsedValues[38],
-							npiDeactivationDate: parsedValues[39] ? LocalDate.parse(parsedValues[39], dateFormatter) : null,
-							npiReactivationDate: parsedValues[40] ? LocalDate.parse(parsedValues[40], dateFormatter) : null,
-							subpart: parsedValues[308]?.toBoolean(),
-							taxonomies: generateTaxonomies(parsedValues),
-							otherProviderInformation: generateOtherProviderInformation(parsedValues),
-							mailingAddress: generateAddress(parsedValues, true),
-							practiceAddress: generateAddress(parsedValues, false))))
+        if (((numberOfUSBasedOrganizationRecordsPerState.get(organization.practiceAddress.state) / totalNumberOfUSBasedOrganizations) / resultDivisor) > random.nextDouble()) {
+						writer.writeLine(jsonMapper.writeValueAsString(organization))
+				}
 			}
 		}
 	}
