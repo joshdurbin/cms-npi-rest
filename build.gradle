@@ -11,7 +11,6 @@ buildscript {
 apply plugin: "io.ratpack.ratpack-groovy"
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: "idea"
-apply plugin: "eclipse"
 
 repositories {
   jcenter()
