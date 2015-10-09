@@ -19,8 +19,9 @@ import org.apache.commons.lang3.mutable.MutableInt
 
 def random = new java.util.Random()
 def dateFormatter = DateTimeFormatter.ofPattern('MM/dd/yyyy')
-def resultDivisor = 2
-def printStatusPerNumberOfRecords = 500000
+def resultDivisor = 1
+def printStatusPerNumberOfRecords = 100000
+def inputFile = 'npidata_20050523-20150913.csv'
 
 class IsoDateSerializer extends StdSerializer<LocalDate> {
 
@@ -189,7 +190,7 @@ def parser = new CsvParser(settings)
 def numberOfUSBasedIndividualsPerState = [:]
 def numberOfUSBasedOrganizationRecordsPerState = [:]
 
-new File('npidata_20050523-20150913.csv').eachLine { line, lineNumber ->
+new File(inputFile).eachLine { line, lineNumber ->
 
 	def parsedValues = parser.parseLine(line)
 
@@ -225,7 +226,7 @@ def totalNumberOfUSBasedOrganizations = numberOfUSBasedOrganizationRecordsPerSta
 
 new File('output.json').withWriter { writer ->
 
-	new File('npidata_20050523-20150913.csv').eachLine { line, lineNumber ->
+	new File(inputFile).eachLine { line, lineNumber ->
 
 		if (lineNumber % printStatusPerNumberOfRecords == 0) {
 			println "Processing line number $lineNumber..."
