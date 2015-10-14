@@ -1,0 +1,7 @@
+persistenceservice:
+  db: cms-npi-rest
+  uri: mongodb://localhost/cms-npi-rest
+requestlimits:
+  defaultResultsPageSize: 20
+  maxResultsPageSize: 50
+  defaultFirstPage: 1

@@ -9,16 +9,15 @@ import java.time.LocalDate
 @CompileStatic
 class Record {
 
-  def type
   String npiCode
   String replacementCode
   List<Taxonomy> taxonomies
-  OtherProviderInformation otherProviderInformation
+  List<OtherProviderInformation> otherProviderInformation
   Address mailingAddress
   Address practiceAddress
   LocalDate providerEnumerationDate
   LocalDate lastUpdate
-  def npiDeactivationReasonCode
+  String npiDeactivationReasonCode
   LocalDate npiDeactivationDate
   LocalDate npiReactivationDate
 }

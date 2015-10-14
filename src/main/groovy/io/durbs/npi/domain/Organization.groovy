@@ -8,7 +8,7 @@ import groovy.transform.CompileStatic
 class Organization extends Record {
 
   String name
-  String otherName
+  List<String> otherNames
   AuthorizedOfficial authorizedOfficial
   Boolean subpart
 }
