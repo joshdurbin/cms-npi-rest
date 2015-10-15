@@ -23,29 +23,18 @@ class IndividualChain extends GroovyChainAction {
     path(":npiCode") {
       final String npiCode = pathTokens['npiCode']
 
-      get {
-        individualService.getIndividualByCode(npiCode)
-          .single()
-          .subscribe { Individual individual ->
-          if (individual) {
-            render individual
-          } else {
-            clientError 404
-          }
-        }
-      }
-    }
+      byMethod {
 
-    path(":postalCode") { ParametersChain.RequestParameters requestParameters ->
-      final String postalCode = pathTokens['postalCode']
+        get {
+          individualService.getIndividualByCode(npiCode)
+            .single()
+            .subscribe { Individual individual ->
 
-      get {
-        individualService.getIndividualsByPostalCode(postalCode, requestParameters.pageNumber, requestParameters.pageSize)
-          .subscribe { Individual individuals ->
-          if (individuals) {
-            render individuals
-          } else {
-            clientError 404
+            if (individual) {
+              render individual
+            } else {
+              clientError 404
+            }
           }
         }
       }
@@ -55,8 +44,9 @@ class IndividualChain extends GroovyChainAction {
       individualService.getIndividuals(requestParameters.pageNumber, requestParameters.pageSize)
         .toList()
         .subscribe { List<Individual> individual ->
+
         if (individual) {
-          render individual
+          render Jackson.json(individual)
         } else {
           clientError 404
         }

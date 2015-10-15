@@ -38,16 +38,6 @@ class IndividualService extends RxMongoPersistenceService {
       .bindExec()
   }
 
-  Observable<Individual> getIndividualsByPostalCode(final String postalCode, final Integer page, final Integer pageSize) {
-    getCollection()
-      .find(eq('practiceAddress.postalCode', postalCode))
-      .limit(pageSize)
-      .skip(pageSize * page)
-      .toObservable()
-      .map(DOCUMENT_TO_INDIVIDUAL)
-      .bindExec()
-  }
-
   @Override
   String getCollectionName() {
     'individuals'
@@ -57,10 +47,10 @@ class IndividualService extends RxMongoPersistenceService {
 
     new Individual(npiCode: document.getString('npiCode'),
       replacementCode: document.getString('replacementCode'),
-      taxonomies: document.get('taxonomies').collect(BSON_DOCUMENT_TO_TAXONOMY),
-      otherProviderInformation: document.get('otherProviderInformation').collect(BSON_DOCUMENT_TO_OTHER_PROVIDER_INFORMATION),
-      mailingAddress: null,
-      practiceAddress: null,
+      taxonomies: document.get('taxonomies', List).collect(BSON_DOCUMENT_TO_TAXONOMY),
+      otherProviderInformation: document.get('otherProviderInformation', List).collect(BSON_DOCUMENT_TO_OTHER_PROVIDER_INFORMATION),
+      mailingAddress: BSON_DOCUMENT_TO_ADDRESS(document.get('mailingAddress', Document)),
+      practiceAddress: BSON_DOCUMENT_TO_ADDRESS(document.get('practiceAddress', Document)),
       providerEnumerationDate: document.containsKey('providerEnumerationDate') ? LocalDateTime.ofInstant(Instant.ofEpochMilli(document.getDate('providerEnumerationDate').getTime()), ZoneId.systemDefault()).toLocalDate() : null,
       lastUpdate: document.containsKey('lastUpdate') ? LocalDateTime.ofInstant(Instant.ofEpochMilli(document.getDate('lastUpdate').getTime()), ZoneId.systemDefault()).toLocalDate() : null,
       npiDeactivationReasonCode: document.getString('npiDeactivationReasonCode'),
@@ -74,9 +64,7 @@ class IndividualService extends RxMongoPersistenceService {
       credentialText: document.getString('credentialText'),
       employerIdentificationNumber: document.getString('employerIdentificationNumber'),
       gender: document.getString('gender'),
-      soleProprietor: document.getBoolean('soleProprietor'),
-
-      )
+      soleProprietor: document.getBoolean('soleProprietor'))
   } as Func1
 
 }

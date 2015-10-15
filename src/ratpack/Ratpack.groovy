@@ -1,7 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.durbs.npi.NPIRestModule
 import io.durbs.npi.chain.IndividualChain
@@ -29,9 +28,10 @@ ratpack {
 
     bindInstance(RxMongoPersistenceServiceConfig, configData.get("/persistenceservice", RxMongoPersistenceServiceConfig))
     bindInstance(RequestLimitsConfig, configData.get("/requestlimits", RequestLimitsConfig))
+
     bindInstance(ObjectMapper, new ObjectMapper()
-      .registerModule(new Jdk8Module())
-      .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+      .registerModule(new JavaTimeModule())
+      .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
       .setSerializationInclusion(JsonInclude.Include.NON_NULL)
       .setSerializationInclusion(JsonInclude.Include.NON_EMPTY))
 
@@ -50,11 +50,11 @@ ratpack {
 
     all chain(registry.get(ParametersChain))
 
-    prefix('individual') {
+    prefix('api/v0/individual') {
       all chain(registry.get(IndividualChain))
     }
 
-    prefix('organization') {
+    prefix('api/v0/organization') {
       all chain(registry.get(OrganizationChain))
     }
   }

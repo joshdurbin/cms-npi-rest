@@ -29,7 +29,7 @@ abstract class RxMongoPersistenceService {
     db.getCollection(getCollectionName())
   }
 
-  protected final static BSON_DOCUMENT_TO_ADDRESS = { final Document document ->
+  protected static final Address BSON_DOCUMENT_TO_ADDRESS(final Document document) {
 
     new Address(streetAddressLine1: document.getString('streetAddressLine1'),
       streetAddressLine2: document.getString('streetAddressLine2'),

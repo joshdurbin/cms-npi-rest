@@ -1,7 +1,7 @@
 package io.durbs.npi.service
 
-import groovy.transform.CompileStatic
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
+import io.durbs.npi.domain.AuthorizedOfficial
 import io.durbs.npi.domain.Organization
 import org.bson.Document
 import rx.Observable
@@ -39,16 +39,6 @@ class OrganizationService extends RxMongoPersistenceService {
       .bindExec()
   }
 
-  Observable<Organization> getOrganizationsByPostalCode(final String postalCode, final Integer page, final Integer pageSize) {
-    getCollection()
-      .find(eq('practiceAddress.postalCode', postalCode))
-      .limit(pageSize)
-      .skip(pageSize * page)
-      .toObservable()
-      .map(DOCUMENT_TO_ORGANIZATION)
-      .bindExec()
-  }
-
   @Override
   String getCollectionName() {
     'organizations'
@@ -56,12 +46,23 @@ class OrganizationService extends RxMongoPersistenceService {
 
   private static Func1<Document, Organization> DOCUMENT_TO_ORGANIZATION = { final Document document ->
 
+
+    final Document authorizedOfficialDocument = document.get('authorizedOfficial', Document)
+    final AuthorizedOfficial authorizedOfficial = new AuthorizedOfficial(firstName: authorizedOfficialDocument.getString('firstName'),
+      middleName: authorizedOfficialDocument.getString('middleName'),
+      lastName: authorizedOfficialDocument.getString('lastName'),
+      namePrefix: authorizedOfficialDocument.getString('namePrefix'),
+      nameSuffix: authorizedOfficialDocument.getString('nameSuffix'),
+      credentialText: authorizedOfficialDocument.getString('credentialText'),
+      titleOrPosition: authorizedOfficialDocument.getString('titleOrPosition'),
+      telephoneNumber: authorizedOfficialDocument.getString('telephoneNumber'))
+
     new Organization(npiCode: document.getString('npiCode'),
       replacementCode: document.getString('replacementCode'),
       taxonomies: document.get('taxonomies').collect(BSON_DOCUMENT_TO_TAXONOMY),
       otherProviderInformation: document.get('otherProviderInformation').collect(BSON_DOCUMENT_TO_OTHER_PROVIDER_INFORMATION),
-      mailingAddress: null,
-      practiceAddress: null,
+      mailingAddress: BSON_DOCUMENT_TO_ADDRESS(document.get('mailingAddress', Document)),
+      practiceAddress: BSON_DOCUMENT_TO_ADDRESS(document.get('practiceAddress', Document)),
       providerEnumerationDate: document.containsKey('providerEnumerationDate') ? LocalDateTime.ofInstant(Instant.ofEpochMilli(document.getDate('providerEnumerationDate').getTime()), ZoneId.systemDefault()).toLocalDate() : null,
       lastUpdate: document.containsKey('lastUpdate') ? LocalDateTime.ofInstant(Instant.ofEpochMilli(document.getDate('lastUpdate').getTime()), ZoneId.systemDefault()).toLocalDate() : null,
       npiDeactivationReasonCode: document.getString('npiDeactivationReasonCode'),
@@ -69,7 +70,7 @@ class OrganizationService extends RxMongoPersistenceService {
       npiReactivationDate: document.containsKey('npiReactivationDate') ? LocalDateTime.ofInstant(Instant.ofEpochMilli(document.getDate('npiReactivationDate').getTime()), ZoneId.systemDefault()).toLocalDate() : null,
       name: document.getString('name'),
       otherNames: document.get('otherName') as List,
-      authorizedOfficial: null,
+      authorizedOfficial: authorizedOfficial,
       subpart: document.getBoolean('subpart'))
   } as Func1
 }
