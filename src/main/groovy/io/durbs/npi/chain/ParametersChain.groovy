@@ -20,9 +20,9 @@ class ParametersChain extends GroovyChainAction {
 
     all {
 
-      Integer suppliedPageSize = request.queryParams.pageSize as Integer ?: requestLimitsConfig.defaultResultsPageSize
-      Integer suppliedPageNumber = request.queryParams.page as Integer ?: requestLimitsConfig.defaultFirstPage
+      Integer suppliedPageNumber = request.queryParams.pageNumber as Integer ?: requestLimitsConfig.defaultFirstPage
 
+      Integer suppliedPageSize = request.queryParams.pageSize as Integer ?: requestLimitsConfig.defaultResultsPageSize
       Integer modifiedPageSize = suppliedPageSize > requestLimitsConfig.maxResultsPageSize ? requestLimitsConfig.maxResultsPageSize : suppliedPageSize
 
       context.next(single(new RequestParameters(pageNumber: suppliedPageNumber, pageSize: modifiedPageSize)))
