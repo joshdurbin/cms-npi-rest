@@ -1,5 +1,6 @@
 package io.durbs.npi.chain
 
+import com.google.inject.Singleton
 import io.durbs.npi.domain.Individual
 import io.durbs.npi.service.IndividualService
 import ratpack.groovy.handling.GroovyChainAction
@@ -7,9 +8,11 @@ import ratpack.jackson.Jackson
 
 import javax.inject.Inject
 
+@Singleton
 class IndividualChain extends GroovyChainAction {
 
-  private final IndividualService individualService
+  @Inject
+  private IndividualService individualService
 
   @Inject
   IndividualChain(IndividualService individualService) {

@@ -1,5 +1,6 @@
 package io.durbs.npi.chain
 
+import com.google.inject.Singleton
 import io.durbs.npi.domain.Organization
 import io.durbs.npi.service.OrganizationService
 import ratpack.groovy.handling.GroovyChainAction
@@ -7,15 +8,11 @@ import ratpack.jackson.Jackson
 
 import javax.inject.Inject
 
+@Singleton
 class OrganizationChain extends GroovyChainAction {
 
-  private final OrganizationService organizationService
-
   @Inject
-  OrganizationChain(OrganizationService organizationService) {
-
-    this.organizationService = organizationService
-  }
+  private OrganizationService organizationService
 
   @Override
   void execute() throws Exception {

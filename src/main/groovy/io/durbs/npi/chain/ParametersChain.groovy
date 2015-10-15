@@ -1,11 +1,13 @@
 package io.durbs.npi.chain
 
+import com.google.inject.Singleton
 import groovy.transform.Immutable
 import io.durbs.npi.config.RequestLimitsConfig
 import ratpack.groovy.handling.GroovyChainAction
 
 import javax.inject.Inject
 
+@Singleton
 class ParametersChain extends GroovyChainAction {
 
   private final RequestLimitsConfig requestLimitsConfig
