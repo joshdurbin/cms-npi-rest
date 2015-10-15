@@ -12,9 +12,33 @@ Data load procedures:
 5. Import script output into Mongo
 
   * `mongoimport -v --host=127.0.0.1 --port=27017 --db cms-npi-rest --collection individuals individuals.json`
-  * `mongoimport -v --host=127.0.0.1 --port=27017 --db cms-npi-rest --collection organisations organisations.json`
+  * `mongoimport -v --host=127.0.0.1 --port=27017 --db cms-npi-rest --collection organizations organizations.json`
 
-7. Establish indexes on collection
+7. Establish indexes on organizations collection
+
+  ```javascript
+  db.organizations.createIndex(
+    {
+      npiCode: 1,
+      "practiceAddress.postalCode": 1,
+    },
+    {
+      name: "Organizations Code and PostalCode Index"
+    }
+)
+
+  db.organizations.createIndex(
+    {
+      name: "text",
+      otherName: "text"
+    },
+    {
+      name: "Organizations Text Index"
+    }
+)
+```
+
+8. Establish indexes on individuals
 
   ```javascript
   db.individuals.createIndex(
@@ -27,20 +51,6 @@ Data load procedures:
     }
 )
 
-  db.organisations.createIndex(
-    {
-      npiCode: 1,
-      "practiceAddress.postalCode": 1,
-    },
-    {
-      name: "Organisations Code and PostalCode Index"
-    }
-)
-```
-
-8. Establish text indexes on collection
-
-  ```javascript
   db.individuals.createIndex(
     {
       firstName: "text",
@@ -49,16 +59,6 @@ Data load procedures:
     },
     {
       name: "Individuals Text Index"
-    }
-)
-
-  db.organisations.createIndex(
-    {
-      name: "text",
-      otherName: "text"
-    },
-    {
-      name: "Organisations Text Index"
     }
 )
 ```
