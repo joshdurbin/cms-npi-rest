@@ -29,7 +29,7 @@ class IndividualChain extends GroovyChainAction {
       byMethod {
 
         get {
-          individualService.getIndividualByCode(npiCode)
+          individualService.getByNPICode(npiCode)
             .single()
             .subscribe { Individual individual ->
 
@@ -44,7 +44,7 @@ class IndividualChain extends GroovyChainAction {
     }
 
     get { ParametersChain.RequestParameters requestParameters ->
-      individualService.getIndividuals(requestParameters.pageNumber, requestParameters.pageSize)
+      individualService.getAll(requestParameters.pageNumber, requestParameters.pageSize)
         .toList()
         .subscribe { List<Individual> individual ->
 

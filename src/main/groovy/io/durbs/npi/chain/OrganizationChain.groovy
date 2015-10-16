@@ -23,7 +23,7 @@ class OrganizationChain extends GroovyChainAction {
       byMethod {
 
         get {
-          organizationService.getOrganizationByCode(npiCode)
+          organizationService.getByNPICode(npiCode)
             .single()
             .subscribe { Organization organization ->
             if (organization) {
@@ -37,7 +37,7 @@ class OrganizationChain extends GroovyChainAction {
     }
 
     get { ParametersChain.RequestParameters requestParameters ->
-      organizationService.getOrganizations(requestParameters.pageNumber, requestParameters.pageSize)
+      organizationService.getAll(requestParameters.pageNumber, requestParameters.pageSize)
         .toList()
         .subscribe { List<Organization> organizations ->
         if (organizations) {

@@ -2,7 +2,6 @@ package io.durbs.npi
 
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
-import com.google.inject.Scopes
 import com.google.inject.Singleton
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
@@ -61,7 +60,11 @@ class NPIRestModule extends AbstractModule {
   @Singleton
   @Inject
   Datastore provideDatastore(MongoClient mongoClient, Morphia morphia, RxMongoPersistenceServiceConfig config) {
-    morphia.createDatastore(mongoClient, config.db)
+    Datastore datastore = morphia.createDatastore(mongoClient, config.db)
+
+    datastore.ensureIndexes(true)
+
+    datastore
   }
 
   @Provides
