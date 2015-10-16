@@ -10,6 +10,16 @@ abstract class AbstractService<T extends Record> {
 
   abstract BasicDAO<T, ObjectId> getDao()
 
+  Observable<Long> getCount() {
+
+    Blocking.get {
+      getDao()
+        .createQuery()
+        .countAll()
+
+    }.observe()
+  }
+
   Observable<T> getAll(final Integer page, final Integer pageSize) {
 
     Blocking.get {
