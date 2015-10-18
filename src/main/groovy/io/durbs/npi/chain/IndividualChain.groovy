@@ -23,22 +23,50 @@ class IndividualChain extends GroovyChainAction {
   @Override
   void execute() throws Exception {
 
-    path(":npiCode") {
-      final String npiCode = pathTokens['npiCode']
+    get(':npiCode') {
 
-      byMethod {
+      final String npiCode = pathTokens.npiCode
 
-        get {
-          individualService.getByNPICode(npiCode)
-            .single()
-            .subscribe { Individual individual ->
+      individualService.getByNPICode(npiCode)
+        .single()
+        .subscribe { Individual individual ->
 
-            if (individual) {
-              render individual
-            } else {
-              clientError 404
-            }
-          }
+        if (individual) {
+          render individual
+        } else {
+          clientError 404
+        }
+      }
+    }
+
+    get('search') { ParametersChain.RequestParameters requestParameters ->
+
+      final String searchTerm = request.queryParams.q
+
+      individualService.findByName(searchTerm, requestParameters.pageNumber, requestParameters.pageSize)
+        .toList()
+        .subscribe { List<Individual> individuals ->
+
+        if (individuals) {
+          render Jackson.json(individuals)
+        } else {
+          clientError 404
+        }
+      }
+    }
+
+    get('in/:npiCode') { ParametersChain.RequestParameters requestParameters ->
+
+      final String postalCode = pathTokens.postalCode
+
+      individualService.getAllForPracticePostalCode(postalCode, requestParameters.pageNumber, requestParameters.pageSize)
+        .toList()
+        .subscribe { List<Individual> individuals ->
+
+        if (individuals) {
+          render Jackson.json(individuals)
+        } else {
+          clientError 404
         }
       }
     }
