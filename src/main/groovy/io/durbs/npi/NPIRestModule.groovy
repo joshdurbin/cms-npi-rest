@@ -60,9 +60,9 @@ class NPIRestModule extends AbstractModule {
   @Singleton
   @Inject
   Datastore provideDatastore(MongoClient mongoClient, Morphia morphia, RxMongoPersistenceServiceConfig config) {
-    Datastore datastore = morphia.createDatastore(mongoClient, config.db)
 
-    datastore.ensureIndexes(true)
+    final Datastore datastore = morphia.createDatastore(mongoClient, config.db)
+    //datastore.ensureIndexes(true)
 
     datastore
   }
