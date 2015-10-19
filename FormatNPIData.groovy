@@ -17,11 +17,11 @@ import java.time.format.DateTimeFormatter
 import java.time.LocalDate
 import org.apache.commons.lang3.mutable.MutableInt
 
-def random = new java.util.Random()
+Random random = new java.util.Random()
 def dateFormatter = DateTimeFormatter.ofPattern('MM/dd/yyyy')
-def resultDivisor = 1
-def printStatusPerNumberOfRecords = 100000
-def inputFile = 'npidata_20050523-20150913.csv'
+Double resultDivisor = 1.0
+Integer printStatusPerNumberOfRecords = 100000
+String inputFile = 'npidata_20050523-20151011.csv'
 
 class IsoDateSerializer extends StdSerializer<LocalDate> {
 
@@ -43,73 +43,73 @@ jsonMapper.setSerializationInclusion(Include.NON_NULL)
 jsonMapper.registerModule(isoDateConversionModule)
 
 class Record {
-	def npiCode
-	def replacementCode
-	def taxonomies
-	def otherProviderInformation
-	def mailingAddress
-	def practiceAddress
-	def providerEnumerationDate
-	def lastUpdate
-	def npiDeactivationReasonCode
-	def npiDeactivationDate
-	def npiReactivationDate
+	String npiCode
+  String replacementCode
+  LocalDate providerEnumerationDate
+  LocalDate lastUpdate
+  String npiDeactivationReasonCode
+  LocalDate npiDeactivationDate
+  LocalDate npiReactivationDate
+  List<Taxonomy> taxonomies
+  List<OtherProviderInformation> otherProviderInformation
+  Address mailingAddress
+  Address practiceAddress
 }
 
 class Individual extends Record {
-	def firstName
-	def middleName
-	def lastName
-	def namePrefix
-	def nameSuffix
-	def credentialText
-	def employerIdentificationNumber
-	def gender
-	def soleProprietor
+	String firstName
+  String middleName
+  String lastName
+  String namePrefix
+  String nameSuffix
+  String credentialText
+  String employerIdentificationNumber
+  String gender
+  Boolean soleProprietor
 }
 
 class Organization extends Record {
-	def name
-	def otherName
-	def authorizedOfficial
-	def subpart
+	String name
+  String otherName
+  Boolean subpart
+  AuthorizedOfficial authorizedOfficial
 }
 
 class AuthorizedOfficial {
-	def firstName
-	def middleName
-	def lastName
-	def namePrefix
-	def nameSuffix
-	def credentialText
-	def titleOrPosition
-	def telephoneNumber
+	String firstName
+  String middleName
+  String lastName
+  String namePrefix
+  String nameSuffix
+  String credentialText
+  String titleOrPosition
+  String telephoneNumber
 }
 
 class Address {
-	def streetAddressLine1
-	def streetAddressLine2
-	def city
-	def state
-	def postalCode
-	def countryCode
-	def telephoneNumber
-	def faxNumber
+	String streetAddressLine1
+  String streetAddressLine2
+  String city
+  String state
+  String postalCode
+  String countryCode
+  String telephoneNumber
+  String faxNumber
 }
 
 class Taxonomy {
-	def isPrimaryTaxonomy
-	def providerTaxonomyCode
-	def providerLicenseNumber
-	def providerLicenseNumberStateCode
-	def taxonomyGroupCode
+	Boolean isPrimaryTaxonomy
+  String providerTaxonomyCode
+  String providerLicenseNumber
+  String providerLicenseNumberStateCode
+  String taxonomyGroupCode
 }
 
 class OtherProviderInformation {
-	def identifier
-	def typeCode
-	def state
-	def issuer
+	String identifier
+  String typeCode
+  String state
+  String issuer
 }
 
 def generateAddress = { stringArray, generateMailingAddress ->
@@ -277,7 +277,7 @@ new File('individuals.json').withWriter { individualsWriter ->
 
 				def organization = new Organization(
 				name: parsedValues[4],
-				otherName: parsedValues[],
+				otherName: parsedValues[11],
 				npiCode:  parsedValues[0],
 				replacementCode: parsedValues[2],
 				authorizedOfficial: authorizedOfficial,
