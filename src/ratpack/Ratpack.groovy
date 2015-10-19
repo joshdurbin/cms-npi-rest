@@ -10,6 +10,7 @@ import io.durbs.npi.config.RequestLimitsConfig
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import ratpack.config.ConfigData
 import ratpack.groovy.template.MarkupTemplateModule
+import ratpack.hystrix.HystrixMetricsEventStreamHandler
 import ratpack.hystrix.HystrixModule
 import ratpack.rx.RxRatpack
 import ratpack.server.Service
@@ -19,7 +20,6 @@ import static ratpack.groovy.Groovy.ratpack
 
 ratpack {
   bindings {
-
 
     ConfigData configData = ConfigData.of { c ->
       c.yaml("$serverConfig.baseDir.file/application.yaml")
@@ -51,6 +51,10 @@ ratpack {
 
   handlers {
 
+    get {
+      redirect('/api/v0/individual')
+    }
+
     all chain(registry.get(ParametersChain))
 
     prefix('api/v0/individual') {
@@ -61,6 +65,6 @@ ratpack {
       all chain(registry.get(OrganizationChain))
     }
 
-
+    get("hystrix.stream", new HystrixMetricsEventStreamHandler())
   }
 }
