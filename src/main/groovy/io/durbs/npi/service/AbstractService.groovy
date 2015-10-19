@@ -34,7 +34,12 @@ abstract class AbstractService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        return "db-bookdb-all"
+        'Count'
+      }
+
+      @Override
+      protected Observable<T> resumeWithFallback() {
+        Observable.empty()
       }
 
     }.toObservable()
@@ -62,7 +67,12 @@ abstract class AbstractService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        return "db-bookdb-all"
+        "All-$pageNumber-$pageSize"
+      }
+
+      @Override
+      protected Observable<T> resumeWithFallback() {
+        Observable.empty()
       }
 
     }.toObservable()
@@ -91,7 +101,12 @@ abstract class AbstractService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        return "db-bookdb-all"
+        "GetAllForPracticePostalCode-$postalCode-$pageNumber-$pageSize"
+      }
+
+      @Override
+      protected Observable<T> resumeWithFallback() {
+        Observable.empty()
       }
 
     }.toObservable()
@@ -117,7 +132,12 @@ abstract class AbstractService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        return "db-bookdb-all"
+        "GetByNPICode-$npiCode"
+      }
+
+      @Override
+      protected Observable<T> resumeWithFallback() {
+        Observable.empty()
       }
 
     }.toObservable()
@@ -145,12 +165,12 @@ abstract class AbstractService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        return "db-bookdb-all"
+        "findByName-$searchTerm-$pageNumber-$pageSize"
       }
 
+      @Override
       protected Observable<T> resumeWithFallback() {
-
-        Observable.from([])
+        Observable.empty()
       }
 
     }.toObservable()
