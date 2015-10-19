@@ -1,7 +1,6 @@
 package io.durbs.npi.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import org.bson.types.ObjectId
 import org.mongodb.morphia.annotations.Embedded
@@ -10,7 +9,6 @@ import org.mongodb.morphia.annotations.Indexed
 
 import java.time.LocalDate
 
-@Canonical
 @CompileStatic
 class Record {
 
