@@ -1,6 +1,7 @@
 package io.durbs.npi.chain
 
 import com.google.inject.Singleton
+import io.durbs.npi.chain.ParametersChain.RequestParameters
 import io.durbs.npi.domain.Organization
 import io.durbs.npi.service.OrganizationService
 import ratpack.groovy.handling.GroovyChainAction
@@ -28,11 +29,11 @@ class OrganizationChain extends GroovyChainAction {
     }
 
 
-    get('search') { ParametersChain.RequestParameters requestParameters ->
+    get('search') { RequestParameters requestParameters ->
 
       final String searchTerm = request.queryParams.q
 
-      organizationService.findByName(searchTerm, requestParameters.pageNumber, requestParameters.pageSize)
+      organizationService.findByName(searchTerm, requestParameters)
         .toList()
         .subscribe { List<Organization> organizations ->
 
@@ -40,11 +41,11 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get('in/:postalCode') { ParametersChain.RequestParameters requestParameters ->
+    get('in/:postalCode') { RequestParameters requestParameters ->
 
       final String postalCode = pathTokens.postalCode
 
-      organizationService.getAllForPracticePostalCode(postalCode, requestParameters.pageNumber, requestParameters.pageSize)
+      organizationService.getAllForPracticePostalCode(postalCode, requestParameters)
         .toList()
         .subscribe { List<Organization> organizations ->
 
@@ -68,8 +69,8 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get { ParametersChain.RequestParameters requestParameters ->
-      organizationService.getAll(requestParameters.pageNumber, requestParameters.pageSize)
+    get { RequestParameters requestParameters ->
+      organizationService.getAll(requestParameters)
         .toList()
         .subscribe { List<Organization> organizations ->
         if (organizations) {

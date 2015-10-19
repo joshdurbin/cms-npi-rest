@@ -1,5 +1,6 @@
 package io.durbs.npi.chain
 
+import com.google.common.base.Enums
 import com.google.inject.Singleton
 import groovy.transform.Immutable
 import io.durbs.npi.config.RequestLimitsConfig
@@ -27,7 +28,11 @@ class ParametersChain extends GroovyChainAction {
       Integer suppliedPageSize = request.queryParams.pageSize as Integer ?: requestLimitsConfig.defaultResultsPageSize
       Integer modifiedPageSize = suppliedPageSize > requestLimitsConfig.maxResultsPageSize ? requestLimitsConfig.maxResultsPageSize : suppliedPageSize
 
-      context.next(single(new RequestParameters(pageNumber: suppliedPageNumber, pageSize: modifiedPageSize)))
+      context.next(single(new RequestParameters(pageNumber: suppliedPageNumber,
+        pageSize: modifiedPageSize,
+        status: Enums.getIfPresent(Status, request.queryParams.status ?: '').or(Status.active),
+        orderBy: Enums.getIfPresent(OrderBy, request.queryParams.orderBy ?: '').or(OrderBy.lastUpdate),
+        order: Enums.getIfPresent(Order, request.queryParams.order ?: '').or(Order.ascending))))
     }
   }
 
@@ -36,5 +41,36 @@ class ParametersChain extends GroovyChainAction {
 
     Integer pageNumber
     Integer pageSize
+    Status status
+    OrderBy orderBy
+    Order order
+
+    Integer getOffSet() {
+      pageNumber * pageSize
+    }
+
+    String getOrderCriteria() {
+
+      if (order == Order.ascending) {
+        "${orderBy}"
+      } else {
+        "-${orderBy}"
+      }
+    }
+  }
+
+  static enum Status {
+
+    active, inactive, reactivated
+  }
+
+  static enum OrderBy {
+
+    npiCode, lastUpdate
+  }
+
+  static enum Order {
+
+    ascending, descending
   }
 }
