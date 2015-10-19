@@ -10,6 +10,7 @@ import io.durbs.npi.config.RequestLimitsConfig
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import ratpack.config.ConfigData
 import ratpack.groovy.template.MarkupTemplateModule
+import ratpack.hystrix.HystrixModule
 import ratpack.rx.RxRatpack
 import ratpack.server.Service
 import ratpack.server.StartEvent
@@ -18,7 +19,7 @@ import static ratpack.groovy.Groovy.ratpack
 
 ratpack {
   bindings {
-    module MarkupTemplateModule
+
 
     ConfigData configData = ConfigData.of { c ->
       c.yaml("$serverConfig.baseDir.file/application.yaml")
@@ -35,7 +36,9 @@ ratpack {
       .setSerializationInclusion(JsonInclude.Include.NON_NULL)
       .setSerializationInclusion(JsonInclude.Include.NON_EMPTY))
 
+    module MarkupTemplateModule
     module NPIRestModule
+    module new HystrixModule().sse()
 
     bindInstance Service, new Service() {
 
@@ -57,5 +60,7 @@ ratpack {
     prefix('api/v0/organization') {
       all chain(registry.get(OrganizationChain))
     }
+
+
   }
 }

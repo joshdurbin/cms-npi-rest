@@ -1,5 +1,6 @@
 package io.durbs.npi.service
 
+import com.netflix.hystrix.HystrixCommandGroupKey
 import io.durbs.npi.domain.Individual
 import com.google.inject.Singleton
 import org.bson.types.ObjectId
@@ -16,5 +17,10 @@ class IndividualService extends AbstractService<Individual> {
   @Override
   BasicDAO getDao() {
     individualDao
+  }
+
+  @Override
+  HystrixCommandGroupKey getCommandGroupKey() {
+    HystrixCommandGroupKey.Factory.asKey('IndividualService')
   }
 }

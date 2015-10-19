@@ -1,6 +1,8 @@
 package io.durbs.npi.service
 
-import io.durbs.npi.domain.Individual
+import com.netflix.hystrix.HystrixCommandGroupKey
+import com.netflix.hystrix.HystrixCommandKey
+import com.netflix.hystrix.HystrixObservableCommand
 import io.durbs.npi.domain.Record
 import org.bson.types.ObjectId
 import org.mongodb.morphia.dao.BasicDAO
@@ -11,62 +13,146 @@ abstract class AbstractService<T extends Record> {
 
   abstract BasicDAO<T, ObjectId> getDao()
 
+  abstract HystrixCommandGroupKey getCommandGroupKey()
+
   Observable<Long> getCount() {
 
-    Blocking.get {
-      getDao()
-        .createQuery()
-        .countAll()
+    new HystrixObservableCommand<Long>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
+      .andCommandKey(HystrixCommandKey.Factory.asKey('Count'))) {
 
-    }.observe()
+      @Override
+      protected Observable<Long> construct() {
+
+        Blocking.get {
+
+          getDao()
+            .createQuery()
+            .countAll()
+
+        }.observe()
+      }
+
+      @Override
+      protected String getCacheKey() {
+        return "db-bookdb-all"
+      }
+
+    }.toObservable()
+
   }
 
   Observable<T> getAll(final Integer pageNumber, final Integer pageSize) {
 
-    Blocking.get {
-      getDao()
-        .createQuery()
-        .limit(pageSize)
-        .offset(pageSize * pageNumber)
-        .iterator()
+    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
+      .andCommandKey(HystrixCommandKey.Factory.asKey('All'))) {
 
-    }.observeEach()
+      @Override
+      protected Observable<T> construct() {
+
+        Blocking.get {
+
+          getDao()
+            .createQuery()
+            .limit(pageSize)
+            .offset(pageSize * pageNumber)
+            .iterator()
+
+        }.observeEach()
+      }
+
+      @Override
+      protected String getCacheKey() {
+        return "db-bookdb-all"
+      }
+
+    }.toObservable()
   }
 
   Observable<T> getAllForPracticePostalCode(final String postalCode, final Integer pageNumber, final Integer pageSize) {
 
-    Blocking.get {
-      getDao()
-        .createQuery()
-        .field('practiceAddress.postalCode').equal(postalCode)
-        .limit(pageSize)
-        .offset(pageSize * pageNumber)
-        .iterator()
 
-    }.observeEach()
+    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
+      .andCommandKey(HystrixCommandKey.Factory.asKey('GetAllForPracticePostalCode'))) {
+
+      @Override
+      protected Observable<T> construct() {
+
+        Blocking.get {
+
+          getDao()
+            .createQuery()
+            .field('practiceAddress.postalCode').equal(postalCode)
+            .limit(pageSize)
+            .offset(pageSize * pageNumber)
+            .iterator()
+
+        }.observeEach()
+      }
+
+      @Override
+      protected String getCacheKey() {
+        return "db-bookdb-all"
+      }
+
+    }.toObservable()
   }
 
   Observable<T> getByNPICode(final String npiCode) {
 
-    Blocking.get {
-      getDao()
-        .createQuery()
-        .field('npiCode').equal(npiCode)
-        .get()
+    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
+      .andCommandKey(HystrixCommandKey.Factory.asKey('GetByNPICode'))) {
 
-    }.observe()
+      @Override
+      protected Observable<T> construct() {
+
+        Blocking.get {
+
+          getDao()
+            .createQuery()
+            .field('npiCode').equal(npiCode)
+            .get()
+
+        }.observe()
+      }
+
+      @Override
+      protected String getCacheKey() {
+        return "db-bookdb-all"
+      }
+
+    }.toObservable()
   }
 
   Observable<T> findByName(String searchTerm, final Integer pageNumber, final Integer pageSize) {
 
-    Blocking.get {
-      getDao()
-        .createQuery()
-        .search()
-        .limit(pageSize)
-        .offset(pageSize * pageNumber)
-        .iterator()
+    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
+      .andCommandKey(HystrixCommandKey.Factory.asKey('FindByName'))) {
 
-    }.observeEach()
+      @Override
+      protected Observable<T> construct() {
+
+        Blocking.get {
+
+          getDao()
+            .createQuery()
+            .search(searchTerm)
+            .limit(pageSize)
+            .offset(pageSize * pageNumber)
+            .toList()
+
+        }.observeEach()
+      }
+
+      @Override
+      protected String getCacheKey() {
+        return "db-bookdb-all"
+      }
+
+      protected Observable<T> resumeWithFallback() {
+
+        Observable.from([])
+      }
+
+    }.toObservable()
   }
 }
