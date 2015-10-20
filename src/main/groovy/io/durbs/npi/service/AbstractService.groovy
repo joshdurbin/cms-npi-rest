@@ -171,19 +171,19 @@ abstract class AbstractService<T extends Record> {
 
   static Query<T> updateQueryWithRequestParams(Query<T> query, RequestParameters requestParameters) {
 
-    query
-      .limit(requestParameters.pageSize)
-      .offset(requestParameters.offSet)
-      .order(requestParameters.orderCriteria)
-
-    if (requestParameters.status == ParametersChain.Status.active) {
-      query.field('npiDeactivationDate').doesNotExist()
-    } else if (requestParameters.status == ParametersChain.Status.inactive) {
-      query.field('npiDeactivationDate').exists()
-      query.field('npiReactivationDate').doesNotExist()
-    } else {
-      query.field('npiReactivationDate').exists()
-    }
+//    query
+//      .limit(requestParameters.pageSize)
+//      .offset(requestParameters.offSet)
+//      .order(requestParameters.orderCriteria)
+//
+//    if (requestParameters.status == ParametersChain.Status.active) {
+//      query.field('npiDeactivationDate').doesNotExist()
+//    } else if (requestParameters.status == ParametersChain.Status.inactive) {
+//      query.field('npiDeactivationDate').exists()
+//      query.field('npiReactivationDate').doesNotExist()
+//    } else {
+//      query.field('npiReactivationDate').exists()
+//    }
 
     query
   }
