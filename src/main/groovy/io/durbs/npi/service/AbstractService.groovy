@@ -30,7 +30,6 @@ abstract class AbstractService<T extends Record> {
 
           getDao()
             .createQuery()
-            .disableValidation()
             .countAll()
 
         }.observe()
@@ -61,8 +60,7 @@ abstract class AbstractService<T extends Record> {
         Blocking.get {
 
           updateQueryWithRequestParams(getDao()
-            .createQuery()
-            .disableValidation(), requestParameters).fetch()
+            .createQuery(), requestParameters).fetch()
 
         }.observeEach()
       }
@@ -92,7 +90,6 @@ abstract class AbstractService<T extends Record> {
 
           updateQueryWithRequestParams(getDao()
             .createQuery()
-            .disableValidation()
             .field('practiceAddress.postalCode').equal(postalCode), requestParameters).fetch()
 
         }.observeEach()
@@ -123,7 +120,6 @@ abstract class AbstractService<T extends Record> {
 
           getDao()
             .createQuery()
-            .disableValidation()
             .field('npiCode').equal(npiCode)
             .get()
 
@@ -155,7 +151,6 @@ abstract class AbstractService<T extends Record> {
 
           updateQueryWithRequestParams(getDao()
             .createQuery()
-            .disableValidation()
             .search(searchTerm), requestParameters).iterator()
 
         }.observeEach()
