@@ -1,5 +1,5 @@
 # cms-npi-rest
-Centers for Medicare and Medicaid Services (CMS) National Provider Identifier (NPI) REST service built atop Ratpack, MxMongo hosted at Heroku.
+Centers for Medicare and Medicaid Services (CMS) National Provider Identifier (NPI) REST service built atop Ratpack, RxMongo hosted at Heroku.
 
 Data load procedures:
 
