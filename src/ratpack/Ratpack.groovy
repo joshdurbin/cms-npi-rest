@@ -8,8 +8,6 @@ import io.durbs.npi.chain.OrganizationChain
 import io.durbs.npi.chain.ParametersChain
 import io.durbs.npi.config.RequestLimitsConfig
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import ratpack.config.ConfigData
 import ratpack.groovy.template.MarkupTemplateModule
 import ratpack.hystrix.HystrixMetricsEventStreamHandler
@@ -47,10 +45,7 @@ ratpack {
       @Override
       void onStart(StartEvent event) throws Exception {
 
-
         RxRatpack.initialize()
-
-
       }
     }
   }
