@@ -1,4 +1,4 @@
-package io.durbs.npi.service.rxmongo.decoder
+package io.durbs.npi.service.codec
 
 import io.durbs.npi.domain.AuthorizedOfficial
 import io.durbs.npi.domain.Organization

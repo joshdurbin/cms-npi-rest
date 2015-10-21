@@ -1,4 +1,4 @@
-package io.durbs.npi.service.rxmongo.decoder
+package io.durbs.npi.service.codec
 
 import io.durbs.npi.domain.Individual
 import org.bson.BsonReader

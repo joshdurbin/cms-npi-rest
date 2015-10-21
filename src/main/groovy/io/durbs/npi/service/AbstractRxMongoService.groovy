@@ -1,4 +1,4 @@
-package io.durbs.npi.service.rxmongo
+package io.durbs.npi.service
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
@@ -19,8 +19,8 @@ import groovy.transform.CompileStatic
 import io.durbs.npi.chain.ParametersChain.RequestParameters
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import io.durbs.npi.domain.Record
-import io.durbs.npi.service.rxmongo.decoder.IndividualCodec
-import io.durbs.npi.service.rxmongo.decoder.OrganizationCodec
+import io.durbs.npi.service.codec.IndividualCodec
+import io.durbs.npi.service.codec.OrganizationCodec
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import rx.Observable
@@ -68,7 +68,7 @@ abstract class AbstractRxMongoService<T extends Record> {
   Observable<Long> getCount() {
 
     new HystrixObservableCommand<Long>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('Rx-Count'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('Count'))) {
 
       @Override
       protected Observable<Long> construct() {
@@ -95,7 +95,7 @@ abstract class AbstractRxMongoService<T extends Record> {
   Observable<T> getAll(final RequestParameters requestParameters) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('Rx-All'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('All'))) {
 
       @Override
       protected Observable<T> construct() {
@@ -124,7 +124,7 @@ abstract class AbstractRxMongoService<T extends Record> {
   Observable<T> getAllForPracticePostalCode(final String postalCode, final RequestParameters requestParameters) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('Rx-GetAllForPracticePostalCode'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('GetAllForPracticePostalCode'))) {
 
       @Override
       protected Observable<T> construct() {
@@ -154,7 +154,7 @@ abstract class AbstractRxMongoService<T extends Record> {
   Observable<T> getByNPICode(final String npiCode) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('Rx-GetByNPICode'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('GetByNPICode'))) {
 
       @Override
       protected Observable<T> construct() {
@@ -181,7 +181,7 @@ abstract class AbstractRxMongoService<T extends Record> {
   Observable<T> findByName(String searchTerm) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('Rx-FindByName'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('FindByName'))) {
 
       @Override
       protected Observable<T> construct() {

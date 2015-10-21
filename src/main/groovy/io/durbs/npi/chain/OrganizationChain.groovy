@@ -1,5 +1,6 @@
 package io.durbs.npi.chain
 
+import com.google.inject.Inject
 import com.google.inject.Singleton
 import io.durbs.npi.chain.ParametersChain.RequestParameters
 import io.durbs.npi.domain.Organization
@@ -10,10 +11,13 @@ import ratpack.jackson.Jackson
 @Singleton
 class OrganizationChain extends GroovyChainAction {
 
+  @Inject
+  OrganizationService organizationService
+
   @Override
   void execute() throws Exception {
 
-    get('count') { OrganizationService organizationService ->
+    get('count') {
 
       organizationService.count
         .single()
@@ -24,7 +28,7 @@ class OrganizationChain extends GroovyChainAction {
     }
 
 
-    get('search') { OrganizationService organizationService ->
+    get('search') {
 
       final String searchTerm = request.queryParams.q
 
@@ -36,7 +40,7 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get('in/:postalCode') { RequestParameters requestParameters, OrganizationService organizationService ->
+    get('in/:postalCode') { RequestParameters requestParameters ->
 
       final String postalCode = pathTokens.postalCode
 
@@ -50,7 +54,7 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get(":npiCode") { OrganizationService organizationService ->
+    get(":npiCode") {
       final String npiCode = pathTokens.npiCode
 
       organizationService.getByNPICode(npiCode)
@@ -64,7 +68,7 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get { RequestParameters requestParameters, OrganizationService organizationService ->
+    get { RequestParameters requestParameters ->
       organizationService.getAll(requestParameters)
         .toList()
         .subscribe { List<Organization> organizations ->

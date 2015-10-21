@@ -1,21 +1,26 @@
 package io.durbs.npi.service
 
-import groovy.transform.CompileStatic
-import io.durbs.npi.chain.ParametersChain.RequestParameters
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import com.netflix.hystrix.HystrixCommandGroupKey
+import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import io.durbs.npi.domain.Organization
-import rx.Observable
 
-@CompileStatic
-interface OrganizationService {
+@Singleton
+class OrganizationService extends AbstractRxMongoService<Organization> implements OrganizationService {
 
-  Observable<Long> getCount()
+  @Inject
+  OrganizationService(RxMongoPersistenceServiceConfig config) {
+    super(config, Organization)
+  }
 
-  Observable<Organization> getAll(final RequestParameters requestParameters)
+  @Override
+  String getCollectionName() {
+    'organizations'
+  }
 
-  Observable<Organization> getAllForPracticePostalCode(final String postalCode, final RequestParameters requestParameters)
-
-  Observable<Organization> getByNPICode(final String npiCode)
-
-  Observable<Organization> findByName(final String searchTerm)
-
+  @Override
+  HystrixCommandGroupKey getCommandGroupKey() {
+    HystrixCommandGroupKey.Factory.asKey('OrganizationService')
+  }
 }

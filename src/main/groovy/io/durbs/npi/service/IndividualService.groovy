@@ -1,21 +1,26 @@
 package io.durbs.npi.service
 
-import groovy.transform.CompileStatic
-import io.durbs.npi.chain.ParametersChain.RequestParameters
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import com.netflix.hystrix.HystrixCommandGroupKey
+import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import io.durbs.npi.domain.Individual
-import rx.Observable
 
-@CompileStatic
-interface IndividualService {
+@Singleton
+class IndividualService extends AbstractRxMongoService<Individual> implements IndividualService {
 
-  Observable<Long> getCount()
+  @Inject
+  IndividualService(RxMongoPersistenceServiceConfig config) {
+    super(config, Individual)
+  }
 
-  Observable<Individual> getAll(final RequestParameters requestParameters)
+  @Override
+  String getCollectionName() {
+    'individuals'
+  }
 
-  Observable<Individual> getAllForPracticePostalCode(final String postalCode, final RequestParameters requestParameters)
-
-  Observable<Individual> getByNPICode(final String npiCode)
-
-  Observable<Individual> findByName(final String searchTerm)
-
+  @Override
+  HystrixCommandGroupKey getCommandGroupKey() {
+    HystrixCommandGroupKey.Factory.asKey('IndividualService')
+  }
 }
