@@ -10,8 +10,8 @@ import io.durbs.npi.config.RequestLimitsConfig
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import io.durbs.npi.service.IndividualService
 import io.durbs.npi.service.OrganizationService
-import io.durbs.npi.service.rxmongo.IndividualRxMongoService
-import io.durbs.npi.service.rxmongo.OrganizationRxMongoService
+import io.durbs.npi.service.morphia.IndividualMorphiaService
+import io.durbs.npi.service.morphia.OrganizationMorphiaService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ratpack.config.ConfigData
@@ -65,22 +65,22 @@ ratpack {
 
     all chain(registry.get(ParametersChain))
 
+    prefix('api/v0/individual') {
+      all { next(single(IndividualService, IndividualMorphiaService)) }
+      all chain(registry.get(IndividualChain))
+    }
+
+    prefix('api/v0/organization') {
+      all { next(single(OrganizationService, OrganizationMorphiaService)) }
+      all chain(registry.get(OrganizationChain))
+    }
+
     prefix('api/v1/individual') {
       all chain(registry.get(IndividualChain))
     }
 
     prefix('api/v1/organization') {
       all chain(registry.get(OrganizationChain))
-    }
-
-    prefix('api/v0/individual') {
-      all { next(single(IndividualService, IndividualRxMongoService)) }
-      all chain(registry.get(IndividualChain))
-    }
-
-    prefix('api/v0/organization') {
-      all { next(single(OrganizationService, OrganizationRxMongoService)) }
-      all chain(registry.get(IndividualChain))
     }
 
     get('hystrix.stream', new HystrixMetricsEventStreamHandler())
