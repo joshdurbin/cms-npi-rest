@@ -78,7 +78,7 @@ abstract class AbstractRxMongoService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        'Count'
+        'Rx-Count'
       }
 
       @Override
@@ -108,7 +108,7 @@ abstract class AbstractRxMongoService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "All-$requestParameters"
+        "Rx-All-$requestParameters"
       }
 
       @Override
@@ -137,7 +137,7 @@ abstract class AbstractRxMongoService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "GetAllForPracticePostalCode-$postalCode-$requestParameters"
+        "Rx-GetAllForPracticePostalCode-$postalCode-$requestParameters"
       }
 
       @Override
@@ -165,7 +165,7 @@ abstract class AbstractRxMongoService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "GetByNPICode-$npiCode"
+        "Rx-GetByNPICode-$npiCode"
       }
 
       @Override
@@ -194,7 +194,7 @@ abstract class AbstractRxMongoService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "findByName-$searchTerm-$requestParameters"
+        "Rx-FindByName-$searchTerm-$requestParameters"
       }
 
       @Override

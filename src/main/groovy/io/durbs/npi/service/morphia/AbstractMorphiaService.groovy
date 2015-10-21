@@ -21,7 +21,7 @@ abstract class AbstractMorphiaService<T extends Record> {
   Observable<Long> getCount() {
 
     new HystrixObservableCommand<Long>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('Count'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('Morphia-Count'))) {
 
       @Override
       protected Observable<Long> construct() {
@@ -37,7 +37,7 @@ abstract class AbstractMorphiaService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        'Count'
+        'Morphia-Count'
       }
 
       @Override
@@ -52,7 +52,7 @@ abstract class AbstractMorphiaService<T extends Record> {
   Observable<T> getAll(final RequestParameters requestParameters) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('All'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('Morphia-All'))) {
 
       @Override
       protected Observable<T> construct() {
@@ -67,7 +67,7 @@ abstract class AbstractMorphiaService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "All-$requestParameters"
+        "Morphia-All-$requestParameters"
       }
 
       @Override
@@ -81,7 +81,7 @@ abstract class AbstractMorphiaService<T extends Record> {
   Observable<T> getAllForPracticePostalCode(final String postalCode, final RequestParameters requestParameters) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('GetAllForPracticePostalCode'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('Morphia-GetAllForPracticePostalCode'))) {
 
       @Override
       protected Observable<T> construct() {
@@ -97,7 +97,7 @@ abstract class AbstractMorphiaService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "GetAllForPracticePostalCode-$postalCode-$requestParameters"
+        "Morphia-GetAllForPracticePostalCode-$postalCode-$requestParameters"
       }
 
       @Override
@@ -111,7 +111,7 @@ abstract class AbstractMorphiaService<T extends Record> {
   Observable<T> getByNPICode(final String npiCode) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('GetByNPICode'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('Morphia-GetByNPICode'))) {
 
       @Override
       protected Observable<T> construct() {
@@ -128,7 +128,7 @@ abstract class AbstractMorphiaService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "GetByNPICode-$npiCode"
+        "Morphia-GetByNPICode-$npiCode"
       }
 
       @Override
@@ -142,7 +142,7 @@ abstract class AbstractMorphiaService<T extends Record> {
   Observable<T> findByName(String searchTerm, final RequestParameters requestParameters) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('FindByName'))) {
+      .andCommandKey(HystrixCommandKey.Factory.asKey('Morphia-FindByName'))) {
 
       @Override
       protected Observable<T> construct() {
@@ -158,7 +158,7 @@ abstract class AbstractMorphiaService<T extends Record> {
 
       @Override
       protected String getCacheKey() {
-        "findByName-$searchTerm-$requestParameters"
+        "Morphia-FindByName-$searchTerm-$requestParameters"
       }
 
       @Override
