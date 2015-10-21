@@ -6,6 +6,7 @@ import com.google.inject.Singleton
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import io.durbs.npi.chain.IndividualChain
 import io.durbs.npi.chain.OrganizationChain
 import io.durbs.npi.chain.ParametersChain
@@ -17,6 +18,9 @@ import io.durbs.npi.renderer.IndividualRenderer
 import io.durbs.npi.renderer.OrganizationRenderer
 import io.durbs.npi.service.IndividualService
 import io.durbs.npi.service.OrganizationService
+import io.durbs.npi.service.morphia.OrganizationMorphiaService
+import io.durbs.npi.service.rxmongo.IndividualRxMongoService
+import io.durbs.npi.service.rxmongo.OrganizationRxMongoService
 import org.bson.types.ObjectId
 import org.mongodb.morphia.Datastore
 import org.mongodb.morphia.Morphia
@@ -25,6 +29,7 @@ import org.mongodb.morphia.dao.BasicDAO
 import javax.inject.Inject
 
 @CompileStatic
+@Slf4j
 class NPIRestModule extends AbstractModule {
 
   @Override
@@ -33,10 +38,12 @@ class NPIRestModule extends AbstractModule {
     bind(ParametersChain)
 
     bind(IndividualRenderer)
-    bind(IndividualService)
+    bind(IndividualService).to(IndividualRxMongoService)
+    bind(IndividualRxMongoService)
     bind(IndividualChain)
-    bind(OrganizationService)
     bind(OrganizationRenderer)
+    bind(OrganizationService).to(OrganizationMorphiaService)
+    bind(OrganizationRxMongoService)
     bind(OrganizationChain)
   }
 
@@ -52,8 +59,14 @@ class NPIRestModule extends AbstractModule {
 
     final Morphia morphia = new Morphia()
 
+    log.debug('Initialized Morphia')
+
     morphia.getMapper().getConverters().addConverter(LocalDateTypeConverter)
     morphia.mapPackage('io.durbs.npi.domain')
+
+    log.info('Initialized Morphia')
+
+    morphia
   }
 
   @Provides

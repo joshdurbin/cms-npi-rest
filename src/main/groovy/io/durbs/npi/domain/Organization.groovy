@@ -1,7 +1,7 @@
 package io.durbs.npi.domain
 
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
-import groovy.transform.Immutable
 import org.mongodb.morphia.annotations.Embedded
 import org.mongodb.morphia.annotations.Entity
 import org.mongodb.morphia.annotations.Field
@@ -9,7 +9,7 @@ import org.mongodb.morphia.annotations.Index
 import org.mongodb.morphia.annotations.Indexes
 import org.mongodb.morphia.utils.IndexType
 
-@Immutable
+@Canonical
 @CompileStatic
 @Entity('organizations')
 @Indexes(

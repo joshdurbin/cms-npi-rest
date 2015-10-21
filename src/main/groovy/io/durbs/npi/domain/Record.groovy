@@ -7,8 +7,6 @@ import org.mongodb.morphia.annotations.Embedded
 import org.mongodb.morphia.annotations.Id
 import org.mongodb.morphia.annotations.Indexed
 
-import java.time.LocalDate
-
 @CompileStatic
 class Record {
 
@@ -40,3 +38,5 @@ class Record {
   @Embedded
   Address practiceAddress
 }
+
+import java.time.LocalDate

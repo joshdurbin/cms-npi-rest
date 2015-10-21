@@ -15,12 +15,6 @@ class IndividualChain extends GroovyChainAction {
   @Inject
   private IndividualService individualService
 
-  @Inject
-  IndividualChain(IndividualService individualService) {
-
-    this.individualService = individualService
-  }
-
   @Override
   void execute() throws Exception {
 

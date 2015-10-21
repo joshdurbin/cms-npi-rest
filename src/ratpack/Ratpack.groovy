@@ -8,6 +8,12 @@ import io.durbs.npi.chain.OrganizationChain
 import io.durbs.npi.chain.ParametersChain
 import io.durbs.npi.config.RequestLimitsConfig
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
+import io.durbs.npi.service.IndividualService
+import io.durbs.npi.service.OrganizationService
+import io.durbs.npi.service.rxmongo.IndividualRxMongoService
+import io.durbs.npi.service.rxmongo.OrganizationRxMongoService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import ratpack.config.ConfigData
 import ratpack.groovy.template.MarkupTemplateModule
 import ratpack.hystrix.HystrixMetricsEventStreamHandler
@@ -17,6 +23,8 @@ import ratpack.server.Service
 import ratpack.server.StartEvent
 
 import static ratpack.groovy.Groovy.ratpack
+
+final Logger logger = LoggerFactory.getLogger(ratpack.class)
 
 ratpack {
   bindings {
@@ -44,16 +52,18 @@ ratpack {
 
       @Override
       void onStart(StartEvent event) throws Exception {
+
+        logger.debug('Initializing RX')
         RxRatpack.initialize()
+
+        logger.info('Initialized RX')
       }
     }
   }
 
   handlers {
 
-    get {
-      redirect('/api/v0/individual')
-    }
+    //all RequestLogger.ncsa(logger) // log all requests
 
     all chain(registry.get(ParametersChain))
 
@@ -65,6 +75,16 @@ ratpack {
       all chain(registry.get(OrganizationChain))
     }
 
-    get("hystrix.stream", new HystrixMetricsEventStreamHandler())
+    prefix('api/v1/individual') {
+      all { next(single(IndividualService, IndividualRxMongoService)) }
+      all chain(registry.get(IndividualChain))
+    }
+
+    prefix('api/v1/organization') {
+      all { next(single(OrganizationService, OrganizationRxMongoService)) }
+      all chain(registry.get(IndividualChain))
+    }
+
+    get('hystrix.stream', new HystrixMetricsEventStreamHandler())
   }
 }

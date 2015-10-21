@@ -1,4 +1,4 @@
-package io.durbs.npi.service
+package io.durbs.npi.service.morphia
 
 import com.netflix.hystrix.HystrixCommandGroupKey
 import com.netflix.hystrix.HystrixCommandKey
@@ -12,7 +12,7 @@ import org.mongodb.morphia.query.Query
 import ratpack.exec.Blocking
 import rx.Observable
 
-abstract class AbstractService<T extends Record> {
+abstract class AbstractMorphiaService<T extends Record> {
 
   abstract BasicDAO<T, ObjectId> getDao()
 

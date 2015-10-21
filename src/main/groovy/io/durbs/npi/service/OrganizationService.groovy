@@ -1,26 +1,47 @@
 package io.durbs.npi.service
 
-import com.google.inject.Singleton
-import com.netflix.hystrix.HystrixCommandGroupKey
+import groovy.transform.CompileStatic
+import io.durbs.npi.chain.ParametersChain.RequestParameters
 import io.durbs.npi.domain.Organization
-import org.bson.types.ObjectId
-import org.mongodb.morphia.dao.BasicDAO
+import rx.Observable
 
-import javax.inject.Inject
+@CompileStatic
+interface OrganizationService {
 
-@Singleton
-class OrganizationService extends AbstractService<Organization> {
+  /**
+   *
+   * @return
+   */
+  Observable<Long> getCount()
 
-  @Inject
-  private BasicDAO<Organization, ObjectId> organizationDao
+  /**
+   *
+   * @param requestParameters
+   * @return
+   */
+  Observable<Organization> getAll(final RequestParameters requestParameters)
 
-  @Override
-  BasicDAO getDao() {
-    organizationDao
-  }
+  /**
+   *
+   * @param postalCode
+   * @param requestParameters
+   * @return
+   */
+  Observable<Organization> getAllForPracticePostalCode(final String postalCode, final RequestParameters requestParameters)
 
-  @Override
-  HystrixCommandGroupKey getCommandGroupKey() {
-    HystrixCommandGroupKey.Factory.asKey('OrganizationService')
-  }
+  /**
+   *
+   * @param npiCode
+   * @return
+   */
+  Observable<Organization> getByNPICode(final String npiCode)
+
+  /**
+   *
+   * @param searchTerm
+   * @param requestParameters
+   * @return
+   */
+  Observable<Organization> findByName(final String searchTerm, final RequestParameters requestParameters)
+
 }
