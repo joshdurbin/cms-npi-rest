@@ -28,11 +28,11 @@ class IndividualChain extends GroovyChainAction {
       }
     }
 
-    get('search') { RequestParameters requestParameters ->
+    get('search') {
 
       final String searchTerm = request.queryParams.q
 
-      individualService.findByName(searchTerm, requestParameters)
+      individualService.findByName(searchTerm)
         .toList()
         .subscribe { List<Individual> individuals ->
 

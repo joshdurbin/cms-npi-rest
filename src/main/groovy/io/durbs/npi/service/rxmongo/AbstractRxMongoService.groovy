@@ -1,6 +1,5 @@
 package io.durbs.npi.service.rxmongo
 
-import com.google.inject.Inject
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClient
 import com.mongodb.async.client.MongoClientSettings
@@ -25,6 +24,9 @@ import io.durbs.npi.service.rxmongo.decoder.OrganizationCodec
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.configuration.CodecRegistry
 import rx.Observable
+
+import static com.mongodb.client.model.Filters.eq
+import static com.mongodb.client.model.Filters.text
 
 @CompileStatic
 abstract class AbstractRxMongoService<T extends Record> {
@@ -128,7 +130,7 @@ abstract class AbstractRxMongoService<T extends Record> {
       protected Observable<T> construct() {
 
         getCollection()
-          .find()
+          .find(eq('address.postalCode', postalCode))
           .limit(requestParameters.pageSize)
           .skip(requestParameters.offSet)
           .toObservable()
@@ -158,7 +160,7 @@ abstract class AbstractRxMongoService<T extends Record> {
       protected Observable<T> construct() {
 
         getCollection()
-          .find()
+          .find(eq('npiCode', npiCode))
           .toObservable()
           .bindExec()
       }
@@ -176,7 +178,7 @@ abstract class AbstractRxMongoService<T extends Record> {
     }.toObservable()
   }
 
-  Observable<T> findByName(String searchTerm, final RequestParameters requestParameters) {
+  Observable<T> findByName(String searchTerm) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
       .andCommandKey(HystrixCommandKey.Factory.asKey('Rx-FindByName'))) {
@@ -185,16 +187,14 @@ abstract class AbstractRxMongoService<T extends Record> {
       protected Observable<T> construct() {
 
         getCollection()
-          .find()
-          .limit(requestParameters.pageSize)
-          .skip(requestParameters.offSet)
+          .find(text(searchTerm))
           .toObservable()
           .bindExec()
       }
 
       @Override
       protected String getCacheKey() {
-        "Rx-FindByName-$searchTerm-$requestParameters"
+        "Rx-FindByName-$searchTerm"
       }
 
       @Override

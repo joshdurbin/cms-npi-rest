@@ -29,11 +29,11 @@ class OrganizationChain extends GroovyChainAction {
     }
 
 
-    get('search') { RequestParameters requestParameters ->
+    get('search') {
 
       final String searchTerm = request.queryParams.q
 
-      organizationService.findByName(searchTerm, requestParameters)
+      organizationService.findByName(searchTerm)
         .toList()
         .subscribe { List<Organization> organizations ->
 

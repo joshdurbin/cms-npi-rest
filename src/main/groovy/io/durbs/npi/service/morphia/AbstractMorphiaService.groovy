@@ -3,12 +3,10 @@ package io.durbs.npi.service.morphia
 import com.netflix.hystrix.HystrixCommandGroupKey
 import com.netflix.hystrix.HystrixCommandKey
 import com.netflix.hystrix.HystrixObservableCommand
-import io.durbs.npi.chain.ParametersChain
 import io.durbs.npi.chain.ParametersChain.RequestParameters
 import io.durbs.npi.domain.Record
 import org.bson.types.ObjectId
 import org.mongodb.morphia.dao.BasicDAO
-import org.mongodb.morphia.query.Query
 import ratpack.exec.Blocking
 import rx.Observable
 
@@ -59,8 +57,11 @@ abstract class AbstractMorphiaService<T extends Record> {
 
         Blocking.get {
 
-          updateQueryWithRequestParams(getDao()
-            .createQuery(), requestParameters).fetch()
+          getDao()
+            .createQuery()
+            .limit(requestParameters.pageNumber)
+            .offset(requestParameters.offSet)
+            .fetch()
 
         }.observeEach()
       }
@@ -88,9 +89,12 @@ abstract class AbstractMorphiaService<T extends Record> {
 
         Blocking.get {
 
-          updateQueryWithRequestParams(getDao()
+          getDao()
             .createQuery()
-            .field('practiceAddress.postalCode').equal(postalCode), requestParameters).fetch()
+            .field('practiceAddress.postalCode').equal(postalCode)
+            .limit(requestParameters.pageNumber)
+            .offset(requestParameters.offSet)
+            .fetch()
 
         }.observeEach()
       }
@@ -139,7 +143,7 @@ abstract class AbstractMorphiaService<T extends Record> {
     }.toObservable()
   }
 
-  Observable<T> findByName(String searchTerm, final RequestParameters requestParameters) {
+  Observable<T> findByName(String searchTerm) {
 
     new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
       .andCommandKey(HystrixCommandKey.Factory.asKey('Morphia-FindByName'))) {
@@ -149,16 +153,17 @@ abstract class AbstractMorphiaService<T extends Record> {
 
         Blocking.get {
 
-          updateQueryWithRequestParams(getDao()
+          getDao()
             .createQuery()
-            .search(searchTerm), requestParameters).iterator()
+            .search(searchTerm)
+            .iterator()
 
         }.observeEach()
       }
 
       @Override
       protected String getCacheKey() {
-        "Morphia-FindByName-$searchTerm-$requestParameters"
+        "Morphia-FindByName-$searchTerm"
       }
 
       @Override
@@ -167,24 +172,5 @@ abstract class AbstractMorphiaService<T extends Record> {
       }
 
     }.toObservable()
-  }
-
-  static Query<T> updateQueryWithRequestParams(Query<T> query, RequestParameters requestParameters) {
-
-    query
-      .limit(requestParameters.pageSize)
-      .offset(requestParameters.offSet)
-      .order(requestParameters.orderCriteria)
-
-    if (requestParameters.status == ParametersChain.Status.active) {
-      query.field('npiDeactivationDate').doesNotExist()
-    } else if (requestParameters.status == ParametersChain.Status.inactive) {
-      query.field('npiDeactivationDate').exists()
-      query.field('npiReactivationDate').doesNotExist()
-    } else {
-      query.field('npiReactivationDate').exists()
-    }
-
-    query
   }
 }

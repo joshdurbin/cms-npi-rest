@@ -63,24 +63,22 @@ ratpack {
 
   handlers {
 
-    //all RequestLogger.ncsa(logger) // log all requests
-
     all chain(registry.get(ParametersChain))
 
-    prefix('api/v0/individual') {
-      all chain(registry.get(IndividualChain))
-    }
-
-    prefix('api/v0/organization') {
-      all chain(registry.get(OrganizationChain))
-    }
-
     prefix('api/v1/individual') {
-      all { next(single(IndividualService, IndividualRxMongoService)) }
       all chain(registry.get(IndividualChain))
     }
 
     prefix('api/v1/organization') {
+      all chain(registry.get(OrganizationChain))
+    }
+
+    prefix('api/v0/individual') {
+      all { next(single(IndividualService, IndividualRxMongoService)) }
+      all chain(registry.get(IndividualChain))
+    }
+
+    prefix('api/v0/organization') {
       all { next(single(OrganizationService, OrganizationRxMongoService)) }
       all chain(registry.get(IndividualChain))
     }

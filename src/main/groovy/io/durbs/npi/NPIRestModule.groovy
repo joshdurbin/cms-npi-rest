@@ -18,6 +18,7 @@ import io.durbs.npi.renderer.IndividualRenderer
 import io.durbs.npi.renderer.OrganizationRenderer
 import io.durbs.npi.service.IndividualService
 import io.durbs.npi.service.OrganizationService
+import io.durbs.npi.service.morphia.IndividualMorphiaService
 import io.durbs.npi.service.morphia.OrganizationMorphiaService
 import io.durbs.npi.service.rxmongo.IndividualRxMongoService
 import io.durbs.npi.service.rxmongo.OrganizationRxMongoService
@@ -40,10 +41,12 @@ class NPIRestModule extends AbstractModule {
     bind(IndividualRenderer)
     bind(IndividualService).to(IndividualRxMongoService)
     bind(IndividualRxMongoService)
+    bind(IndividualMorphiaService)
     bind(IndividualChain)
     bind(OrganizationRenderer)
-    bind(OrganizationService).to(OrganizationMorphiaService)
+    bind(OrganizationService).to(OrganizationRxMongoService)
     bind(OrganizationRxMongoService)
+    bind(OrganizationMorphiaService)
     bind(OrganizationChain)
   }
 
