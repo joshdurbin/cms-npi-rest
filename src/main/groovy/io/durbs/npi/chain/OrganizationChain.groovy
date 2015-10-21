@@ -7,18 +7,13 @@ import io.durbs.npi.service.OrganizationService
 import ratpack.groovy.handling.GroovyChainAction
 import ratpack.jackson.Jackson
 
-import javax.inject.Inject
-
 @Singleton
 class OrganizationChain extends GroovyChainAction {
-
-  @Inject
-  private OrganizationService organizationService
 
   @Override
   void execute() throws Exception {
 
-    get('count') {
+    get('count') { OrganizationService organizationService ->
 
       organizationService.count
         .single()
@@ -29,7 +24,7 @@ class OrganizationChain extends GroovyChainAction {
     }
 
 
-    get('search') {
+    get('search') { OrganizationService organizationService ->
 
       final String searchTerm = request.queryParams.q
 
@@ -41,7 +36,7 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get('in/:postalCode') { RequestParameters requestParameters ->
+    get('in/:postalCode') { RequestParameters requestParameters, OrganizationService organizationService ->
 
       final String postalCode = pathTokens.postalCode
 
@@ -55,7 +50,7 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get(":npiCode") {
+    get(":npiCode") { OrganizationService organizationService ->
       final String npiCode = pathTokens.npiCode
 
       organizationService.getByNPICode(npiCode)
@@ -69,7 +64,7 @@ class OrganizationChain extends GroovyChainAction {
       }
     }
 
-    get { RequestParameters requestParameters ->
+    get { RequestParameters requestParameters, OrganizationService organizationService ->
       organizationService.getAll(requestParameters)
         .toList()
         .subscribe { List<Organization> organizations ->

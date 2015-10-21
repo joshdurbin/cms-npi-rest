@@ -7,18 +7,13 @@ import io.durbs.npi.service.IndividualService
 import ratpack.groovy.handling.GroovyChainAction
 import ratpack.jackson.Jackson
 
-import javax.inject.Inject
-
 @Singleton
 class IndividualChain extends GroovyChainAction {
-
-  @Inject
-  private IndividualService individualService
 
   @Override
   void execute() throws Exception {
 
-    get('count') {
+    get('count') { IndividualService individualService ->
 
       individualService.count
         .single()
@@ -28,7 +23,7 @@ class IndividualChain extends GroovyChainAction {
       }
     }
 
-    get('search') {
+    get('search') { IndividualService individualService ->
 
       final String searchTerm = request.queryParams.q
 
@@ -40,7 +35,7 @@ class IndividualChain extends GroovyChainAction {
       }
     }
 
-    get('in/:postalCode') { RequestParameters requestParameters ->
+    get('in/:postalCode') { IndividualService individualService, RequestParameters requestParameters ->
 
       final String postalCode = pathTokens.postalCode
 
@@ -54,7 +49,7 @@ class IndividualChain extends GroovyChainAction {
       }
     }
 
-    get(':npiCode') {
+    get(':npiCode') { IndividualService individualService ->
 
       final String npiCode = pathTokens.npiCode
 
@@ -70,7 +65,7 @@ class IndividualChain extends GroovyChainAction {
       }
     }
 
-    get { RequestParameters requestParameters ->
+    get { RequestParameters requestParameters, IndividualService individualService ->
       individualService.getAll(requestParameters)
         .toList()
         .subscribe { List<Individual> individual ->

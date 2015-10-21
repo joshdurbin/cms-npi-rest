@@ -41,9 +41,11 @@ class NPIRestModule extends AbstractModule {
     bind(IndividualRenderer)
     bind(IndividualService).to(IndividualRxMongoService)
     bind(IndividualMorphiaService)
+    bind(IndividualRxMongoService)
     bind(IndividualChain)
     bind(OrganizationRenderer)
     bind(OrganizationService).to(OrganizationRxMongoService)
+    bind(OrganizationRxMongoService)
     bind(OrganizationMorphiaService)
     bind(OrganizationChain)
   }
