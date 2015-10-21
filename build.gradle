@@ -21,7 +21,6 @@ repositories {
 dependencies {
 
   compile ratpack.dependency('rx')
-  compile ratpack.dependency('hystrix')
 
   compile 'org.mongodb:mongo-java-driver:3.1.0'
   compile 'org.mongodb:mongodb-driver-rx:1.1.0'

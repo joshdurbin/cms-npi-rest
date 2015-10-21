@@ -9,9 +9,6 @@ import io.durbs.npi.chain.ParametersChain
 import io.durbs.npi.config.RequestLimitsConfig
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import ratpack.config.ConfigData
-import ratpack.groovy.template.MarkupTemplateModule
-import ratpack.hystrix.HystrixMetricsEventStreamHandler
-import ratpack.hystrix.HystrixModule
 import ratpack.rx.RxRatpack
 import ratpack.server.Service
 import ratpack.server.StartEvent
@@ -36,9 +33,7 @@ ratpack {
       .setSerializationInclusion(JsonInclude.Include.NON_NULL)
       .setSerializationInclusion(JsonInclude.Include.NON_EMPTY))
 
-    module MarkupTemplateModule
     module NPIRestModule
-    module new HystrixModule().sse()
 
     bindInstance Service, new Service() {
 
@@ -61,7 +56,5 @@ ratpack {
     prefix('api/v0/organization') {
       all chain(registry.get(OrganizationChain))
     }
-
-    get('hystrix.stream', new HystrixMetricsEventStreamHandler())
   }
 }

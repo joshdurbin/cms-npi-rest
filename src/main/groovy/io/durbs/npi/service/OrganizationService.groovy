@@ -2,7 +2,6 @@ package io.durbs.npi.service
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.netflix.hystrix.HystrixCommandGroupKey
 import groovy.transform.CompileStatic
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
 import io.durbs.npi.domain.Organization
@@ -21,8 +20,4 @@ class OrganizationService extends AbstractRxMongoService<Organization> {
     'organizations'
   }
 
-  @Override
-  HystrixCommandGroupKey getCommandGroupKey() {
-    HystrixCommandGroupKey.Factory.asKey('OrganizationService')
-  }
 }

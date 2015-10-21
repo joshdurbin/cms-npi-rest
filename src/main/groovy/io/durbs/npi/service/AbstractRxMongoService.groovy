@@ -12,9 +12,6 @@ import com.mongodb.rx.client.MongoClients
 import com.mongodb.rx.client.MongoClient as RXMongoClient
 import com.mongodb.rx.client.MongoCollection
 import com.mongodb.rx.client.MongoDatabase
-import com.netflix.hystrix.HystrixCommandGroupKey
-import com.netflix.hystrix.HystrixCommandKey
-import com.netflix.hystrix.HystrixObservableCommand
 import groovy.transform.CompileStatic
 import io.durbs.npi.chain.ParametersChain.RequestParameters
 import io.durbs.npi.config.RxMongoPersistenceServiceConfig
@@ -35,8 +32,6 @@ abstract class AbstractRxMongoService<T extends Record> {
   private Class<T> clazz
 
   abstract String getCollectionName()
-
-  abstract HystrixCommandGroupKey getCommandGroupKey()
 
   AbstractRxMongoService(RxMongoPersistenceServiceConfig config, Class<T> clazz) {
 
@@ -67,142 +62,45 @@ abstract class AbstractRxMongoService<T extends Record> {
 
   Observable<Long> getCount() {
 
-    new HystrixObservableCommand<Long>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('Count'))) {
-
-      @Override
-      protected Observable<Long> construct() {
-
-        getCollection()
-          .count()
-          .bindExec()
-      }
-
-      @Override
-      protected String getCacheKey() {
-        'Rx-Count'
-      }
-
-      @Override
-      protected Observable<T> resumeWithFallback() {
-        Observable.empty()
-      }
-
-    }.toObservable()
-
+    getCollection()
+      .count()
+      .bindExec()
   }
 
   Observable<T> getAll(final RequestParameters requestParameters) {
 
-    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('All'))) {
-
-      @Override
-      protected Observable<T> construct() {
-
-        getCollection()
-          .find()
-          .limit(requestParameters.pageSize)
-          .skip(requestParameters.offSet)
-          .toObservable()
-          .bindExec()
-      }
-
-      @Override
-      protected String getCacheKey() {
-        "Rx-All-$requestParameters"
-      }
-
-      @Override
-      protected Observable<T> resumeWithFallback() {
-        Observable.empty()
-      }
-
-    }.toObservable()
+    getCollection()
+      .find()
+      .limit(requestParameters.pageSize)
+      .skip(requestParameters.offSet)
+      .toObservable()
+      .bindExec()
   }
 
   Observable<T> getAllForPracticePostalCode(final String postalCode, final RequestParameters requestParameters) {
 
-    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('GetAllForPracticePostalCode'))) {
-
-      @Override
-      protected Observable<T> construct() {
-
-        getCollection()
-          .find(eq('address.postalCode', postalCode))
-          .limit(requestParameters.pageSize)
-          .skip(requestParameters.offSet)
-          .toObservable()
-          .bindExec()
-      }
-
-      @Override
-      protected String getCacheKey() {
-        "Rx-GetAllForPracticePostalCode-$postalCode-$requestParameters"
-      }
-
-      @Override
-      protected Observable<T> resumeWithFallback() {
-        Observable.empty()
-      }
-
-
-    }.toObservable()
+    getCollection()
+      .find(eq('address.postalCode', postalCode))
+      .limit(requestParameters.pageSize)
+      .skip(requestParameters.offSet)
+      .toObservable()
+      .bindExec()
   }
 
   Observable<T> getByNPICode(final String npiCode) {
 
-    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('GetByNPICode'))) {
-
-      @Override
-      protected Observable<T> construct() {
-
-        getCollection()
-          .find(eq('npiCode', npiCode))
-          .toObservable()
-          .bindExec()
-      }
-
-      @Override
-      protected String getCacheKey() {
-        "Rx-GetByNPICode-$npiCode"
-      }
-
-      @Override
-      protected Observable<T> resumeWithFallback() {
-        Observable.empty()
-      }
-
-    }.toObservable()
+    getCollection()
+      .find(eq('npiCode', npiCode))
+      .toObservable()
+      .bindExec()
   }
 
   Observable<T> findByName(String searchTerm) {
 
-    new HystrixObservableCommand<T>(HystrixObservableCommand.Setter.withGroupKey(getCommandGroupKey())
-      .andCommandKey(HystrixCommandKey.Factory.asKey('FindByName'))) {
-
-      @Override
-      protected Observable<T> construct() {
-
-        getCollection()
-          .find(text(searchTerm))
-          .toObservable()
-          .bindExec()
-      }
-
-      @Override
-      protected String getCacheKey() {
-        "Rx-FindByName-$searchTerm"
-      }
-
-      @Override
-      protected Observable<T> resumeWithFallback() {
-        Observable.empty()
-      }
-
-    }.toObservable()
+    getCollection()
+      .find(text(searchTerm))
+      .toObservable()
+      .bindExec()
   }
 
 }
